@@ -4,12 +4,14 @@
 
 | Version | Supported |
 | --- | --- |
-| 1.x | Yes |
-| < 1.0 | No |
+| Latest published 1.x release | Yes |
+| Older releases | No |
+
+Security fixes apply to the latest published 1.x release. Users should upgrade to the fixed release as soon as it is available.
 
 ## Reporting a vulnerability
 
-Please report security issues privately using GitHub's "Report a vulnerability" feature on the repository's Security tab. Do not open a public issue for an exploitable finding.
+Report suspected vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/draarivpatel-ui/envcage/security/advisories/new). Do not open a public issue for an exploitable finding.
 
 Include:
 
@@ -18,7 +20,24 @@ Include:
 - The expected security boundary and the observed violation.
 - Whether the issue exposes a secret value, bypasses validation, permits prototype pollution or bypasses a documented limit.
 
-You should receive an acknowledgement within 7 days. We will work with you on a fix and coordinate disclosure. Please give maintainers a reasonable window to release a patch before public disclosure.
+Do not include real credentials, secret values or customer data in a report.
+
+## Acknowledgment and coordinated disclosure timeline
+
+- We aim to acknowledge a vulnerability report within 3 business days.
+- We aim to complete initial triage and severity assessment within 14 days.
+- We aim to release a fix within 90 days of confirming a vulnerability, sooner for high severity issues when practical.
+- We coordinate public disclosure with the reporter. A public advisory is normally published after a fixed release is available or on a mutually agreed date.
+- Credit is given in release notes and the advisory unless the reporter prefers otherwise.
+- If a report is not accepted as a vulnerability, we will explain the reasoning before closing the advisory.
+
+## Vulnerability handling process
+
+1. Receive the private report through the GitHub security advisory.
+2. Reproduce the issue, determine affected versions and assess severity.
+3. Develop a fix with regression tests.
+4. Publish the fixed release and prepare the advisory.
+5. Publish coordinated disclosure notes with affected and fixed versions.
 
 ## Scope
 
