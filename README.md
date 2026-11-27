@@ -1,5 +1,7 @@
 # envcage
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/draarivpatel-ui/envcage/badge)](https://scorecard.dev/viewer/?uri=github.com/draarivpatel-ui/envcage)
+
 Zero-dependency strict environment variable validation, secret redaction and dotenv parsing for Node.js.
 
 `envcage` is a small, auditable security library for service configuration. It validates only the environment variables named by a schema, aggregates every validation failure into one structured error, deeply freezes the resulting null-prototype config object, and makes secret values difficult to leak through logs, `JSON.stringify`, `util.inspect` or diagnostic objects. It works in ESM and CommonJS with strict TypeScript declarations and no runtime dependencies.
