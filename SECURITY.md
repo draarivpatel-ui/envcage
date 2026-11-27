@@ -11,7 +11,7 @@ Security fixes apply to the latest published 1.x release. Users should upgrade t
 
 ## Reporting a vulnerability
 
-Report suspected vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/draarivpatel-ui/envcage/security/advisories/new). Do not open a public issue for an exploitable finding.
+[Report a vulnerability](https://github.com/draarivpatel-ui/envcage/security/advisories/new) privately through GitHub private vulnerability reporting. Do not open a public issue for an exploitable finding.
 
 Include:
 
