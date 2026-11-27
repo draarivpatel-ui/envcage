@@ -124,6 +124,11 @@ test('tracked text files use LF line endings', () => {
   assert.deepEqual(offenders, []);
 });
 
+test('gitattributes forces LF checkout for every text file', () => {
+  const attributes = readRelative(path.join(root, '.gitattributes'));
+  assert.match(attributes, /^\* text=auto eol=lf$/m);
+});
+
 test('package manifest has no install lifecycle scripts', () => {
   const pkg = JSON.parse(readRelative(path.join(root, 'package.json')));
   for (const script of ['preinstall', 'install', 'postinstall', 'prepublish', 'prepublishOnly']) {

@@ -11,7 +11,7 @@ Zero-dependency strict environment variable validation, secret redaction and dot
 - **Secret masking.** `t.secret()` returns a `SecretString` wrapper whose string, JSON and inspect forms are always `[REDACTED]`.
 - **Safe dotenv parsing.** No shell execution, no variable expansion, strict size limits, duplicate-key policy, multiline quoted strings and prototype-key rejection.
 
-**Tests:** 454 passing with `npm test` (Node 18+).
+**Tests:** 455 passing with `npm test` (Node 18+).
 
 ## Install
 
