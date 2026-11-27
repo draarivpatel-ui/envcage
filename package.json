@@ -1,0 +1,57 @@
+{
+  "name": "envcage",
+  "version": "1.0.0",
+  "description": "Zero-dependency strict environment variable validation, secret redaction and dotenv parsing for Node.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/draarivpatel-ui/envcage.git"
+  },
+  "homepage": "https://github.com/draarivpatel-ui/envcage#readme",
+  "bugs": {
+    "url": "https://github.com/draarivpatel-ui/envcage/issues"
+  },
+  "type": "module",
+  "main": "./cjs/index.cjs",
+  "module": "./src/index.mjs",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.mjs",
+      "require": "./cjs/index.cjs"
+    }
+  },
+  "files": [
+    "src",
+    "cjs",
+    "types",
+    "README.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "GOOD_FIRST_ISSUES.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build:cjs": "node scripts/build-cjs.mjs",
+    "check:cjs": "node scripts/build-cjs.mjs --check"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "security",
+    "environment",
+    "env",
+    "dotenv",
+    "configuration",
+    "validation",
+    "secrets",
+    "redaction",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "dependencies": {},
+  "devDependencies": {}
+}
