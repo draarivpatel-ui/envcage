@@ -136,10 +136,10 @@ test('package manifest has no install lifecycle scripts', () => {
   }
 });
 
-test('package manifest has zero dependencies of every kind', () => {
+test('package manifest has zero runtime dependencies and only fast-check for development', () => {
   const pkg = JSON.parse(readRelative(path.join(root, 'package.json')));
   assert.deepEqual(pkg.dependencies, {});
-  assert.deepEqual(pkg.devDependencies, {});
+  assert.deepEqual(pkg.devDependencies, { 'fast-check': '4.10.3' });
   assert.equal(pkg.peerDependencies, undefined);
   assert.equal(pkg.optionalDependencies, undefined);
 });

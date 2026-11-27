@@ -169,12 +169,12 @@ test('TypeScript declarations document strict validator option surfaces', () => 
   }
 });
 
-test('package manifest is zero dependency and points at the public repository', () => {
+test('package manifest has zero runtime dependencies and points at the public repository', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'envcage');
   assert.equal(pkg.version, '1.0.0');
   assert.deepEqual(pkg.dependencies, {});
-  assert.deepEqual(pkg.devDependencies, {});
+  assert.deepEqual(pkg.devDependencies, { 'fast-check': '4.10.3' });
   assert.equal(pkg.repository.url, 'git+https://github.com/draarivpatel-ui/envcage.git');
   assert.equal(pkg.homepage, 'https://github.com/draarivpatel-ui/envcage#readme');
   assert.equal(pkg.bugs.url, 'https://github.com/draarivpatel-ui/envcage/issues');
