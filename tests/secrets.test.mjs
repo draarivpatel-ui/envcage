@@ -426,3 +426,52 @@ test('redact lowercase URL hex support preserves unescaped letter case', () => {
   assert.equal(redact(config, lowerHex), '[REDACTED]');
 });
 
+test('redact replaces mixed-case URL percent hex', () => {
+  const secret = 'abc+def/ghi?=xyz123';
+  const config = configWithSecret(secret);
+  assert.equal(redact(config, 'abc%2Bdef%2fghi%3F%3dxyz123'), '[REDACTED]');
+});
+
+test('redact handles regex-special characters in raw and encoded secrets', () => {
+  const secret = 'abc(def)*[x]$?\\123456';
+  const config = configWithSecret(secret);
+  assert.equal(redact(config, secret), '[REDACTED]');
+  assert.equal(redact(config, encodeURIComponent(secret)), '[REDACTED]');
+});
+
+test('overlapping URL-encoded secrets redact the longest encoding first', () => {
+  const short = 'abc+defg';
+  const long = 'abc+defghi';
+  const config = defineEnv({
+    SHORT: t.secret({ minLength: 8 }),
+    LONG: t.secret({ minLength: 8 })
+  }, {
+    SHORT: short,
+    LONG: long
+  });
+  assert.equal(redact(config, encodeURIComponent(long)), '[REDACTED]');
+});
+
+test('secrets inside Map and Set containers are registered for text redaction', () => {
+  const secret = validSecret('container');
+  const config = configWithSecret(secret);
+  const holder = {
+    map: new Map([['token', config.TOKEN]]),
+    set: new Set([config.TOKEN])
+  };
+  assert.equal(redact(holder, 'leaked ' + secret), 'leaked [REDACTED]');
+});
+
+test('secret collection is not truncated in large object graphs', () => {
+  const secret = validSecret('deep');
+  const config = configWithSecret(secret);
+  const root = {};
+  let current = root;
+  for (let index = 0; index < 10050; index += 1) {
+    current.next = {};
+    current = current.next;
+  }
+  current.token = config.TOKEN;
+  assert.equal(redact(root, secret), '[REDACTED]');
+});
+

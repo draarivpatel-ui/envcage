@@ -16,9 +16,9 @@ const EXPORT_NAMES = [
 ];
 
 let body = source;
-const fsImport = "import { openSync, readSync, closeSync } from 'node:fs';";
+const fsImport = "import { openSync, readSync, closeSync, fstatSync, constants as fsConstants } from 'node:fs';";
 if (!body.includes(fsImport)) throw new Error('CJS transform could not find the node:fs import');
-body = body.replace(fsImport, "const { openSync, readSync, closeSync } = require('node:fs');");
+body = body.replace(fsImport, "const { openSync, readSync, closeSync, fstatSync, constants: fsConstants } = require('node:fs');");
 body = body.replace(/^export const /gm, 'const ');
 body = body.replace(/^export class /gm, 'class ');
 body = body.replace(/^export function /gm, 'function ');

@@ -397,3 +397,54 @@ test('json default output rejects symbol keys', () => {
   assertIssue(error, 'VALUE', CODE.JSON);
 });
 
+test('enum rejects empty string values at schema construction', () => {
+  assert.throws(() => t.enum(['', 'prod']), /non-empty strings/);
+});
+
+test('str maxLength zero permits only empty strings', () => {
+  assert.equal(parseOne(t.str({ maxLength: 0 }), ''), '');
+  rejectOne(t.str({ maxLength: 0 }), 'a', CODE.LENGTH);
+});
+
+test('csv maxItems zero permits an empty typed default only', () => {
+  const config = defineEnv({ VALUE: t.csv({ maxItems: 0 }).default([]) }, {});
+  assert.deepEqual(config.VALUE, []);
+  rejectOne(t.csv({ maxItems: 0 }), '', CODE.CSV);
+});
+
+test('durationMs rejects non-ASCII whitespace separators', () => {
+  rejectOne(t.durationMs(), '1h\u00A030m', CODE.DURATION);
+});
+
+test('durationMs permits repeated ASCII spaces between valid segments', () => {
+  assert.equal(parseOne(t.durationMs(), '1h  30m'), 5400000);
+});
+
+test('unicode format controls are rejected in environment values', () => {
+  for (const char of ['\u200B', '\u200D', '\u2060', '\uFEFF']) {
+    rejectOne(t.str(), 'safe' + char + 'evil', CODE.CONTROL_CHARACTER);
+  }
+});
+
+test('json rejects duplicate object keys recursively', () => {
+  for (const raw of [
+    '{"a":1,"a":2}',
+    '{"outer":{"a":1,"a":2}}',
+    '[{"a":1,"a":2}]',
+    '{"a":1,"\\u0061":2}',
+    '{"":1,"":2}'
+  ]) {
+    rejectOne(t.json(), raw, CODE.JSON);
+  }
+});
+
+test('json duplicate scanner accepts structural characters inside strings', () => {
+  const input = { a: '}{["\\"', b: ['{},[]'] };
+  assert.deepEqual(parseOne(t.json(), JSON.stringify(input)), input);
+});
+
+test('json depth limit is enforced before native parsing', () => {
+  const raw = '['.repeat(1024) + '1' + ']'.repeat(1024);
+  rejectOne(t.json({ maxDepth: 512 }), raw, CODE.JSON);
+});
+

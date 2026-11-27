@@ -220,7 +220,7 @@ export interface ParseDotEnvOptions {
   onDuplicate?: 'error' | 'first' | 'last';
 }
 
-/** Parse dotenv text without shell expansion or command execution. */
+/** Parse dotenv text without shell expansion, command execution or variable interpolation. */
 export declare function parseDotEnv(
   text: string,
   options?: ParseDotEnvOptions
@@ -231,7 +231,7 @@ export interface LoadEnvFileOptions extends ParseDotEnvOptions {
   required?: boolean;
 }
 
-/** Read and parse a UTF-8 dotenv file. */
+/** Read and parse a regular valid UTF-8 dotenv file. */
 export declare function loadEnvFile(
   filePath: string,
   options?: LoadEnvFileOptions

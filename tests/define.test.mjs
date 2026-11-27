@@ -345,3 +345,11 @@ test('defineEnv option type errors use invalid input rather than schema errors',
   directError(() => defineEnv({ A: t.str() }, { A: 'x' }, { allowMultiline: 'yes' }), CODE.INVALID_INPUT);
 });
 
+test('EnvCageError sanitizes malformed issue entries', () => {
+  const error = new EnvCageError(CODE.VALIDATION, 'x', { issues: [null, 4, { reason: 'safe' }] });
+  assert.equal(error.issues.length, 3);
+  assert.equal(error.issues[0].key, null);
+  assert.equal(error.issues[0].code, CODE.VALIDATION);
+  assert.equal(error.issues[2].reason, 'safe');
+});
+

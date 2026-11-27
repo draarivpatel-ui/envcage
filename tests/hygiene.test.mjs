@@ -142,7 +142,7 @@ test('package manifest has zero dependencies of every kind', () => {
 test('library source imports only node:fs', () => {
   const source = readRelative(path.join(root, 'src', 'index.mjs'));
   const imports = source.match(/^import .*$/gm) || [];
-  assert.deepEqual(imports, ["import { openSync, readSync, closeSync } from 'node:fs';"]);
+  assert.deepEqual(imports, ["import { openSync, readSync, closeSync, fstatSync, constants as fsConstants } from 'node:fs';"]);
 });
 
 test('library source contains no eval Function constructor child process or network API', () => {

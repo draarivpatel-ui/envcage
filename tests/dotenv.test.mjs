@@ -387,3 +387,59 @@ test('parseDotEnv rejects bidirectional formatting controls in values', () => {
   directError(() => parseDotEnv('A=safe\u202Eevil\n'), CODE.CONTROL_CHARACTER);
 });
 
+test('parseDotEnv accepts one UTF-8 byte order mark at the start', () => {
+  const parsed = parseDotEnv('\uFEFFA=1\nB=2\n');
+  assert.equal(parsed.A, '1');
+  assert.equal(parsed.B, '2');
+});
+
+test('parseDotEnv rejects a byte order mark away from the start', () => {
+  directError(() => parseDotEnv('A=safe\uFEFFevil\n'), CODE.CONTROL_CHARACTER);
+});
+
+test('parseDotEnv rejects Unicode format controls in values', () => {
+  directError(() => parseDotEnv('A=safe\u200Bevil\n'), CODE.CONTROL_CHARACTER);
+});
+
+test('parseDotEnv rejects non-ASCII whitespace around keys and equals', () => {
+  directError(() => parseDotEnv('\u00A0A=1\n'), CODE.DOTENV_SYNTAX);
+  directError(() => parseDotEnv('A\u00A0=1\n'), CODE.DOTENV_SYNTAX);
+});
+
+test('loadEnvFile accepts a UTF-8 byte order mark', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'envcage-test-'));
+  try {
+    const file = path.join(directory, '.env');
+    fs.writeFileSync(file, '\uFEFFA=1\n', 'utf8');
+    assert.equal(loadEnvFile(file).A, '1');
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('loadEnvFile rejects malformed UTF-8 instead of inserting replacement characters', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'envcage-test-'));
+  try {
+    const file = path.join(directory, '.env');
+    fs.writeFileSync(file, Buffer.from([0x41, 0x3d, 0xff, 0x0a]));
+    directError(() => loadEnvFile(file), CODE.FILE);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('loadEnvFile rejects non-regular file paths', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'envcage-test-'));
+  try {
+    directError(() => loadEnvFile(directory), CODE.FILE);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('parseDotEnv parses a dense quoted value without quote-state errors', () => {
+  const payload = 'x'.repeat(100000);
+  const parsed = parseDotEnv('A="' + payload + '"', { maxValueLength: 100001 });
+  assert.equal(parsed.A, payload);
+});
+

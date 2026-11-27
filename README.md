@@ -11,7 +11,7 @@ Zero-dependency strict environment variable validation, secret redaction and dot
 - **Secret masking.** `t.secret()` returns a `SecretString` wrapper whose string, JSON and inspect forms are always `[REDACTED]`.
 - **Safe dotenv parsing.** No shell execution, no variable expansion, strict size limits, duplicate-key policy, multiline quoted strings and prototype-key rejection.
 
-**Tests:** 431 passing with `npm test` (Node 18+).
+**Tests:** 454 passing with `npm test` (Node 18+).
 
 ## Install
 
@@ -70,6 +70,8 @@ Options:
 | `allowMultiline` | `false` | Permit tab and line break characters in every value. Prefer per-validator `multiline` where supported. |
 
 The returned object and all arrays and plain objects inside it are frozen. Secret values are additionally wrapped. Mutating or spreading the config does not expose a secret accidentally, but `reveal()` always returns the real string and must be treated as sensitive.
+
+Raw values reject null bytes, C0 and C1 control characters, bidirectional formatting controls and other Unicode format controls. Line breaks and tabs are rejected unless multiline input is explicitly enabled.
 
 ### Validators
 
@@ -138,7 +140,7 @@ Accepts one of the supplied non-empty string values and returns the canonical co
 
 #### `t.json(options?)`
 
-Parses strict JSON. Object keys named `__proto__`, `constructor` or `prototype` are rejected recursively. Nesting depth is limited by `maxDepth` (default 32). Raw line breaks are rejected unless `{ multiline: true }` is set. The parsed value is deeply frozen as part of the final config.
+Parses strict JSON. Object keys named `__proto__`, `constructor` or `prototype` are rejected recursively, and duplicate object keys are rejected after escape decoding. Nesting depth is limited by `maxDepth` (default 32) and deep input is rejected before the native parser recurses into it. Raw line breaks are rejected unless `{ multiline: true }` is set. The parsed value is deeply frozen as part of the final config.
 
 #### `t.csv(options?)`
 
@@ -154,11 +156,11 @@ Parses a simple comma-separated list into an array of strings. This is deliberat
 
 #### `t.durationMs(options?)`
 
-Parses a duration into whole milliseconds. Accepted forms are bare digits as milliseconds or unit segments using `ms`, `s`, `m`, `h` and `d`, such as `250ms`, `2s`, `5m`, `1h 30m` or `1d`. Units may not repeat. Fractional input is accepted only when it resolves to whole milliseconds, for example `1.5s`. Negative values, exponent notation, unknown units and non-integer millisecond results are rejected.
+Parses a duration into whole milliseconds. Accepted forms are bare digits as milliseconds or unit segments using `ms`, `s`, `m`, `h` and `d`, such as `250ms`, `2s`, `5m`, `1h 30m` or `1d`. Segments are separated only by ASCII spaces. Units may not repeat. Fractional input is accepted only when it resolves to whole milliseconds, for example `1.5s`. Negative values, exponent notation, unknown units and non-integer millisecond results are rejected.
 
 ### `redact(config, textOrObj)`
 
-Replaces every registered secret value with `[REDACTED]` in a string, an `Error` copy or a deep clone of a diagnostic object. For secrets at least 8 characters long, their URL-encoded, base64 and base64url forms, including unpadded variants, are also replaced. The input object is never mutated.
+Replaces every registered secret value with `[REDACTED]` in a string, an `Error` copy or a deep clone of a diagnostic object. For secrets at least 8 characters long, their canonical `encodeURIComponent`, base64 and base64url forms, including unpadded base64 variants, are also replaced. Percent-encoding hex digits are matched case-insensitively. Redaction is defense in depth and cannot cover every possible downstream encoding. The input object is never mutated.
 
 ```js
 const safeLog = redact(config, `token was ${config.API_TOKEN.reveal()}`);
@@ -178,7 +180,8 @@ Parses dotenv text into a frozen null-prototype object of strings. The parser is
 - Keys must match `[A-Za-z_][A-Za-z0-9_]*` and must not be `__proto__`, `constructor` or `prototype`.
 - Duplicate keys throw by default. `onDuplicate` may be `'error'`, `'first'` or `'last'`.
 - Input size, entry count, key length and value length are capped.
-- Null bytes and control characters are rejected. Multiline quoted values may contain line breaks and tabs.
+- Null bytes, control characters and Unicode format controls are rejected. Multiline quoted values may contain line breaks and tabs.
+- One UTF-8 byte order mark is accepted at the start of input. Only ASCII spaces and tabs are structural whitespace.
 - Single-quoted values are literal. Double-quoted values support `\\n`, `\\r`, `\\t`, `\\\\`, `\\\"` and `\\$` escapes.
 - `$(command)`, backticks and `$VARIABLE` are literal text. Nothing is evaluated or expanded.
 - CRLF input is normalized to LF line endings.
@@ -187,7 +190,7 @@ Options: `maxBytes` (default 1048576), `maxEntries` (default 1000), `maxKeyLengt
 
 ### `loadEnvFile(filePath, options?)`
 
-Reads a UTF-8 dotenv file with `node:fs` and parses it with `parseDotEnv`. By default a read failure throws `ERR_ENVCAGE_FILE`. Pass `{ required: false }` to return an empty frozen object when the file does not exist. Parser options are forwarded.
+Reads a regular UTF-8 dotenv file with `node:fs` and parses it with `parseDotEnv`. Non-regular paths such as directories, devices and FIFOs are rejected instead of blocking. Malformed UTF-8 is rejected rather than silently converted to replacement characters. By default a read failure throws `ERR_ENVCAGE_FILE`. Pass `{ required: false }` to return an empty frozen object when the file does not exist. Parser options are forwarded.
 
 ## Scope and limitations
 

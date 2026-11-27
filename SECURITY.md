@@ -26,10 +26,10 @@ The following are in scope:
 
 - Validation bypasses for documented strict boolean, integer, number, port, URL, enum, JSON, CSV or duration rules.
 - Secret values appearing in `EnvCageError` messages, issue objects, `toJSON()`, `util.inspect()` output or `safeSnapshot()` output.
-- Failure of `redact()` to remove a registered secret or its documented encoded forms.
-- Prototype pollution through schema keys, option objects, JSON values or dotenv keys.
-- Dotenv parser command execution, shell expansion, quote-state confusion, duplicate bypasses or documented limit bypasses.
-- Control-character or null-byte handling that contradicts the documented rules.
+- Failure of `redact()` to remove a registered secret or its documented canonical encoded forms.
+- Prototype pollution or duplicate-key ambiguity through schema keys, option objects, JSON values or dotenv keys.
+- Dotenv parser command execution, shell expansion, quote-state confusion, duplicate bypasses, malformed UTF-8 acceptance or documented limit bypasses.
+- Control-character, Unicode format-control or null-byte handling that contradicts the documented rules.
 
 The following are generally out of scope:
 
@@ -43,10 +43,10 @@ The following are generally out of scope:
 
 - Error aggregation never includes raw environment values. This avoids leaking unmarked credentials through validation failures.
 - Secret values are wrapped in `SecretString`. Accidental string conversion, JSON serialization and inspection produce `[REDACTED]`; only an explicit `reveal()` call returns the raw value.
-- `redact()` treats raw, URL-encoded, base64 and base64url forms as sensitive when the secret is at least 8 characters long. Redaction is defense in depth, not proof that every possible encoding is covered.
-- The config object is null-prototype and deeply frozen. Schema keys, JSON object keys and dotenv keys are checked for prototype-pollution names before use.
-- The dotenv parser never invokes a shell, evaluates JavaScript or expands variables. Text that looks like command substitution remains text.
-- Size limits are applied before parsing large inputs. Applications with tighter memory requirements should lower the limits.
+- `redact()` treats raw, canonical `encodeURIComponent`, base64 and base64url forms as sensitive when the secret is at least 8 characters long. Percent hex is matched case-insensitively. Redaction is defense in depth, not proof that every possible downstream encoding or representation is covered.
+- The config object is null-prototype and deeply frozen. Schema keys, JSON object keys and dotenv keys are checked for prototype-pollution names before use. Duplicate JSON object keys are rejected after escape decoding.
+- The dotenv parser never invokes a shell, evaluates JavaScript or expands variables. Text that looks like command substitution remains text. Files must be regular valid UTF-8 files.
+- Size and depth limits are applied before recursive or proportional parsing work where practical. Applications with tighter memory requirements should lower the limits.
 
 ## Disclosure history
 

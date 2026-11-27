@@ -132,14 +132,14 @@ test('generated CJS file has the deterministic build header', () => {
 
 test('source of truth does not contain CommonJS require for node:fs', () => {
   const source = fs.readFileSync(path.join(root, 'src', 'index.mjs'), 'utf8');
-  assert.match(source, /import \{ openSync, readSync, closeSync \} from 'node:fs';/);
+  assert.match(source, /import \{ openSync, readSync, closeSync, fstatSync, constants as fsConstants \} from 'node:fs';/);
   assert.equal(source.includes("require('node:fs')"), false);
 });
 
 test('generated CJS does not contain ESM export declarations', () => {
   const output = fs.readFileSync(path.join(root, 'cjs', 'index.cjs'), 'utf8');
   assert.equal(/^export\s/m.test(output), false);
-  assert.match(output, /const \{ openSync, readSync, closeSync \} = require\('node:fs'\);/);
+  assert.match(output, /const \{ openSync, readSync, closeSync, fstatSync, constants: fsConstants \} = require\('node:fs'\);/);
 });
 
 test('TypeScript declarations expose every public function', () => {
